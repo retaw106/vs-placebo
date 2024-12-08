@@ -122,7 +122,7 @@ bool vspl_tonemap_reconfig(void *priv, struct pl_plane_data *data, const VSAPI *
     ));
 
     if (!ok) {
-        vsapi->logMessage(mtCritical, "Failed creating GPU textures!\n");
+        vsapi->logMessage(mtCritical, "tonemap: Failed creating GPU textures!\n");
         return false;
     }
 
@@ -550,8 +550,8 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
 #define COLORM_PARAM(par, type) colorMapParams->par = vsapi->propGet##type(in, #par, 0, &err); \
         if (err) colorMapParams->par = pl_color_map_default_params.par;
 
-    COLORM_PARAM(tone_mapping_mode, Int)
-    COLORM_PARAM(tone_mapping_crosstalk, Float)
+    // COLORM_PARAM(tone_mapping_mode, Int)
+    // COLORM_PARAM(tone_mapping_crosstalk, Float)
 #if PL_API_VER >= 247
     COLORM_PARAM(visualize_lut, Int)
 #endif

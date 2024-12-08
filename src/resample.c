@@ -205,7 +205,7 @@ bool vspl_resample_reconfig(void *priv, struct pl_plane_data *data, int w, int h
     ));
 
     if (!ok) {
-        vsapi->logMessage(mtCritical, "Failed creating GPU textures!\n");
+        vsapi->logMessage(mtCritical, "resample: Failed creating GPU textures!\n");
         return false;
     }
 
@@ -462,8 +462,6 @@ void VS_CC VSPlaceboResampleCreate(const VSMap *in, VSMap *out, void *useResampl
     d.lut = NULL;
     sampleFilterParams->no_widening = false;
     sampleFilterParams->no_compute = false;
-    sampleFilterParams->lut_entries = vsapi->propGetInt(in, "lut_entries", 0, &err);
-    sampleFilterParams->cutoff = vsapi->propGetFloat(in, "cutoff", 0, &err);
     sampleFilterParams->antiring = vsapi->propGetFloat(in, "antiring", 0, &err);
 
     const char *filter = vsapi->propGetData(in, "filter", 0, &err);

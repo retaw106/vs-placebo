@@ -83,7 +83,7 @@ VS_EXTERNAL_API(void) VapourSynthPluginInit(VSConfigPlugin configFunc, VSRegiste
 
     registerFunc("Resample", "clip:clip;width:int;height:int;filter:data:opt;clamp:float:opt;blur:float:opt;"
                              "taper:float:opt;radius:float:opt;param1:float:opt;param2:float:opt;"
-                             "src_width:float:opt;src_height:float:opt;sx:float:opt;sy:float:opt;antiring:float:opt;lut_entries:int:opt;cutoff:float:opt;"
+                             "src_width:float:opt;src_height:float:opt;sx:float:opt;sy:float:opt;antiring:float:opt;"
                              "sigmoidize:int:opt;sigmoid_center:float:opt;sigmoid_slope:float:opt;linearize:int:opt;trc:int:opt;"
                              "log_level:int:opt;", VSPlaceboResampleCreate, 0, plugin);
 
@@ -97,8 +97,8 @@ VS_EXTERNAL_API(void) VapourSynthPluginInit(VSConfigPlugin configFunc, VSRegiste
                             "percentile:float:opt;"
                             "gamut_mapping:int:opt;"
                             "tone_mapping_function:int:opt;tone_mapping_function_s:data:opt;"
-                            "tone_mapping_mode:int:opt;"
-                            "tone_mapping_param:float:opt;tone_mapping_crosstalk:float:opt;"
+                            // "tone_mapping_mode:int:opt;"
+                            // "tone_mapping_param:float:opt;tone_mapping_crosstalk:float:opt;"
                             "metadata:int:opt;"
                             "use_dovi:int:opt;"
                             "visualize_lut:int:opt;show_clipping:int:opt;"
@@ -106,7 +106,7 @@ VS_EXTERNAL_API(void) VapourSynthPluginInit(VSConfigPlugin configFunc, VSRegiste
 
     registerFunc("Shader", "clip:clip;shader:data:opt;width:int:opt;height:int:opt;chroma_loc:int:opt;matrix:int:opt;trc:int:opt;"
                            "linearize:int:opt;sigmoidize:int:opt;sigmoid_center:float:opt;sigmoid_slope:float:opt;"
-                           "lut_entries:int:opt;antiring:float:opt;"
+                           "antiring:float:opt;"
                            "filter:data:opt;clamp:float:opt;blur:float:opt;taper:float:opt;radius:float:opt;"
                            "param1:float:opt;param2:float:opt;shader_s:data:opt;"
                            "log_level:int:opt;", VSPlaceboShaderCreate, 0, plugin);

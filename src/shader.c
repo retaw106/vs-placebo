@@ -78,8 +78,6 @@ bool vspl_shader_do_plane(struct priv *p, void *data, int n, struct pl_plane *pl
         .upscaler = &d->sampleParams->filter,
         .downscaler = &d->sampleParams->filter,
         .antiringing_strength = d->sampleParams->antiring,
-        .lut_entries = d->sampleParams->lut_entries,
-        .polar_cutoff = d->sampleParams->cutoff
     };
 
     return pl_render_image(p->rr, &img, &out, &renderParams);
@@ -128,7 +126,7 @@ bool vspl_shader_reconfig(void *priv, struct pl_plane_data *data, const VSAPI *v
     ));
 
     if (!ok) {
-        vsapi->logMessage(mtCritical, "Failed creating GPU textures!\n");
+        vsapi->logMessage(mtCritical, "shader: Failed creating GPU textures!\n");
         return false;
     }
 
@@ -376,7 +374,6 @@ void VS_CC VSPlaceboShaderCreate(const VSMap *in, VSMap *out, void *userData, VS
     struct pl_sample_filter_params *sampleFilterParams = calloc(1, sizeof(struct pl_sample_filter_params));
 
     sampleFilterParams->lut_entries = vsapi->propGetInt(in, "lut_entries", 0, &err);
-    sampleFilterParams->cutoff = vsapi->propGetFloat(in, "cutoff", 0, &err);
     sampleFilterParams->antiring = vsapi->propGetFloat(in, "antiring", 0, &err);
 
     const char *filter = vsapi->propGetData(in, "filter", 0, &err);

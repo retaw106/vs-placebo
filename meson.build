@@ -1,10 +1,13 @@
 project('vs-placebo', ['c', 'cpp'],
-  default_options: ['buildtype=release', 'b_ndebug=if-release', 'c_std=c11', 'cpp_std=c++11'],
-  meson_version: '>=0.51.0',
+  default_options: ['buildtype=release', 'b_ndebug=if-release', 'c_std=c11', 'cpp_std=c++14'],
+  meson_version: '>=0.54.0',
   version: '1.4.4'
 )
 
+# use_static_libs = true
+
 win32 = host_machine.system() == 'windows' or host_machine.system() == 'cygwin'
+message('win32 flag: ', win32)
 
 placebo = dependency('libplacebo', required: true, version: '>=6.269.0', static: win32)
 vapoursynth_dep = dependency('vapoursynth', static: win32).partial_dependency(includes: true, compile_args: true)
