@@ -48,12 +48,12 @@ typedef struct {
     bool use_dovi;
 } TMData;
 
-void logMessageFormatted(int msgType, const char *format, ...) {
+void logMessageFormatted(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
     // 打印消息类型
-    printf("Log Type: %d, ", msgType);
+    // printf("Log Type: %d, ", msgType);
 
     // 使用 vprintf 直接打印格式化后的字符串
     vprintf(format, args);
@@ -352,9 +352,9 @@ static const VSFrameRef *VS_CC VSPlaceboTMGetFrame(int n, int activationReason, 
         uint8_t dovi_profile = 0;
 
 #ifdef HAVE_DOVI
-        logMessageFormatted(mtWarning, "HAVE_DOVI: %d, use_dovi: %d\n", 1, tm_data->use_dovi);
+        logMessageFormatted("HAVE_DOVI: %d, use_dovi: %d\n", 1, tm_data->use_dovi);
 #else
-        logMessageFormatted(mtWarning, "HAVE_DOVI: %d, use_dovi: %d\n", 0, tm_data->use_dovi);
+        logMessageFormatted("HAVE_DOVI: %d, use_dovi: %d\n", 0, tm_data->use_dovi);
 #endif
 
 #ifdef HAVE_DOVI
@@ -451,7 +451,7 @@ static const VSFrameRef *VS_CC VSPlaceboTMGetFrame(int n, int activationReason, 
                 .pixels = vsapi->getReadPtr((VSFrameRef *) frame, i),
             };
 
-            logMessageFormatted(mtWarning, "planes: width: %d, height: %d, pixel_stride: %d, row_stride: %d\n", vsapi->getFrameWidth(frame, i),
+            logMessageFormatted("planes: width: %d, height: %d, pixel_stride: %d, row_stride: %d\n", vsapi->getFrameWidth(frame, i),
                 vsapi->getFrameHeight(frame, i), dstFmt->bytesPerSample, vsapi->getStride(frame, i));
 
             planes[i].component_size[0] = 16;
@@ -548,7 +548,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
     if (!err && gamut_map_index >= 0 && gamut_map_index < pl_num_gamut_map_functions) {
         colorMapParams->gamut_mapping = pl_gamut_map_functions[gamut_map_index];
     }
-    logMessageFormatted(mtWarning, "gamut_map_index: %d\n", gamut_map_index);
+    logMessageFormatted("gamut_map_index: %d\n", gamut_map_index);
 
     // Tone mapping function
     int64_t function_index = vsapi->propGetInt(in, "tone_mapping_function", 0, &err);
@@ -557,7 +557,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
         function_index = 0;
     }
     colorMapParams->tone_mapping_function = pl_tone_map_functions[function_index];
-    logMessageFormatted(mtWarning, "tone_mapping_function function_index: %d\n", function_index);
+    // logMessageFormatted("tone_mapping_function function_index: %d\n", function_index);
 
     const char *function_name = vsapi->propGetData(in, "tone_mapping_function_s", 0, &err);
     if (function_name && !err) {
@@ -652,7 +652,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
             return;
     };
 
-    logMessageFormatted(mtWarning, "src_csp: %d, dst_csp: %d\n", src_csp, dst_csp);
+    logMessageFormatted("src_csp: %d, dst_csp: %d\n", src_csp, dst_csp);
 
     const float src_max = vsapi->propGetFloat(in, "src_max", 0, &err);
     const float src_min = vsapi->propGetFloat(in, "src_min", 0, &err);
@@ -662,7 +662,8 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
 
     dst_pl_csp->hdr.max_luma = vsapi->propGetFloat(in, "dst_max", 0, &err);
     dst_pl_csp->hdr.min_luma = vsapi->propGetFloat(in, "dst_min", 0, &err);
-    logMessageFormatted(mtWarning, "dst_pl_csp->hdr.max_luma: %d, min_luma: %d\n", dst_pl_csp->hdr.max_luma, dst_pl_csp->hdr.min_luma);
+    logMessageFormatted("src_pl_csp->hdr.max_luma: %f, min_luma: %f\n", src_pl_csp->hdr.max_luma, src_pl_csp->hdr.min_luma);
+    logMessageFormatted("dst_pl_csp->hdr.max_luma: %f, min_luma: %f\n", dst_pl_csp->hdr.max_luma, dst_pl_csp->hdr.min_luma);
 
     int64_t dst_prim = vsapi->propGetInt(in, "dst_prim", 0, &err);
     if (!err)
