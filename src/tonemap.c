@@ -337,6 +337,8 @@ static const VSFrameRef *VS_CC VSPlaceboTMGetFrame(int n, int activationReason, 
         struct pl_dovi_metadata *dovi_meta = NULL;
         uint8_t dovi_profile = 0;
 
+        vsapi->logMessage(mtDebug, "HAVE_DOVI: %d, use_dovi: %d\n", HAVE_DOVI, tm_data->use_dovi);
+
 #ifdef HAVE_DOVI
         if (tm_data->use_dovi && vsapi->propNumElements(props, "DolbyVisionRPU")) {
             uint8_t *doviRpu = (uint8_t *) vsapi->propGetData(props, "DolbyVisionRPU", 0, &err);
@@ -431,10 +433,15 @@ static const VSFrameRef *VS_CC VSPlaceboTMGetFrame(int n, int activationReason, 
                 .pixels = vsapi->getReadPtr((VSFrameRef *) frame, i),
             };
 
+            vsapi->logMessage(mtDebug, "planes: width: %d, height: %d, pixel_stride: %d, row_stride: %d\n", vsapi->getFrameWidth(frame, i),
+                vsapi->getFrameHeight(frame, i), dstFmt->bytesPerSample, vsapi->getStride(frame, i));
+
             planes[i].component_size[0] = 16;
             planes[i].component_pad[0] = 0;
             planes[i].component_map[0] = i;
         }
+
+        
 
         void *packed_dst = malloc(w * h * 2 * 3);
         pthread_mutex_lock(&tm_data->lock); // libplacebo isn’t thread-safe
@@ -523,6 +530,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
     if (!err && gamut_map_index >= 0 && gamut_map_index < pl_num_gamut_map_functions) {
         colorMapParams->gamut_mapping = pl_gamut_map_functions[gamut_map_index];
     }
+    vsapi->logMessage(mtDebug, "gamut_map_index: %d\n", gamut_map_index);
 
     // Tone mapping function
     int64_t function_index = vsapi->propGetInt(in, "tone_mapping_function", 0, &err);
@@ -531,6 +539,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
         function_index = 0;
     }
     colorMapParams->tone_mapping_function = pl_tone_map_functions[function_index];
+    vsapi->logMessage(mtDebug, "tone_mapping_function function_index: %d\n", function_index);
 
     const char *function_name = vsapi->propGetData(in, "tone_mapping_function_s", 0, &err);
     if (function_name && !err) {
@@ -625,6 +634,8 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
             return;
     };
 
+    vsapi->logMessage(mtDebug, "src_csp: %d, dst_csp: %d\n", src_csp, dst_csp);
+
     const float src_max = vsapi->propGetFloat(in, "src_max", 0, &err);
     const float src_min = vsapi->propGetFloat(in, "src_min", 0, &err);
 
@@ -633,6 +644,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
 
     dst_pl_csp->hdr.max_luma = vsapi->propGetFloat(in, "dst_max", 0, &err);
     dst_pl_csp->hdr.min_luma = vsapi->propGetFloat(in, "dst_min", 0, &err);
+    vsapi->logMessage(mtDebug, "dst_pl_csp->hdr.max_luma: %d, min_luma: %d\n", dst_pl_csp->hdr.max_luma, dst_pl_csp->hdr.min_luma);
 
     int64_t dst_prim = vsapi->propGetInt(in, "dst_prim", 0, &err);
     if (!err)
