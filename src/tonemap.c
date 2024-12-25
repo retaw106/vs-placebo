@@ -47,7 +47,37 @@ typedef struct {
     bool use_dovi;
 } TMData;
 
-bool vspl_tonemap_do_planes(TMData *tm_data, struct pl_plane *planes,
+static void logMessageFormatted(int msgType, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    // 计算格式化字符串的长度
+    int length = vsnprintf(NULL, 0, format, args);
+    if (length < 0) {
+        va_end(args);
+        return; // 处理错误情况
+    }
+
+    // 分配足够的内存来存储格式化后的字符串
+    char *buffer = (char *)malloc(length + 1);
+    if (!buffer) {
+        va_end(args);
+        return; // 处理内存分配失败的情况
+    }
+
+    // 将格式化后的字符串写入缓冲区
+    vsnprintf(buffer, length + 1, format, args);
+
+    // 使用原始的 logMessage 函数打印消息
+    vsapi->logMessage(msgType, buffer);
+
+    // 释放分配的内存
+    free(buffer);
+
+    va_end(args);
+}
+
+bool vspl_tonemap_do_planes(const VSAPI *vsapi, TMData *tm_data, struct pl_plane *planes,
                  const struct pl_color_repr src_repr, const struct pl_color_repr dst_repr)
 {
     struct priv *p = tm_data->vf;
@@ -337,7 +367,7 @@ static const VSFrameRef *VS_CC VSPlaceboTMGetFrame(int n, int activationReason, 
         struct pl_dovi_metadata *dovi_meta = NULL;
         uint8_t dovi_profile = 0;
 
-        vsapi->logMessage(mtDebug, "HAVE_DOVI: %d, use_dovi: %d\n", HAVE_DOVI, tm_data->use_dovi);
+        logMessageFormatted(vsapi, mtDebug, "HAVE_DOVI: %d, use_dovi: %d\n", HAVE_DOVI, tm_data->use_dovi);
 
 #ifdef HAVE_DOVI
         if (tm_data->use_dovi && vsapi->propNumElements(props, "DolbyVisionRPU")) {
@@ -433,7 +463,7 @@ static const VSFrameRef *VS_CC VSPlaceboTMGetFrame(int n, int activationReason, 
                 .pixels = vsapi->getReadPtr((VSFrameRef *) frame, i),
             };
 
-            vsapi->logMessage(mtDebug, "planes: width: %d, height: %d, pixel_stride: %d, row_stride: %d\n", vsapi->getFrameWidth(frame, i),
+            logMessageFormatted(vsapi, mtDebug, "planes: width: %d, height: %d, pixel_stride: %d, row_stride: %d\n", vsapi->getFrameWidth(frame, i),
                 vsapi->getFrameHeight(frame, i), dstFmt->bytesPerSample, vsapi->getStride(frame, i));
 
             planes[i].component_size[0] = 16;
@@ -530,7 +560,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
     if (!err && gamut_map_index >= 0 && gamut_map_index < pl_num_gamut_map_functions) {
         colorMapParams->gamut_mapping = pl_gamut_map_functions[gamut_map_index];
     }
-    vsapi->logMessage(mtDebug, "gamut_map_index: %d\n", gamut_map_index);
+    logMessageFormatted(vsapi, mtDebug, "gamut_map_index: %d\n", gamut_map_index);
 
     // Tone mapping function
     int64_t function_index = vsapi->propGetInt(in, "tone_mapping_function", 0, &err);
@@ -539,7 +569,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
         function_index = 0;
     }
     colorMapParams->tone_mapping_function = pl_tone_map_functions[function_index];
-    vsapi->logMessage(mtDebug, "tone_mapping_function function_index: %d\n", function_index);
+    logMessageFormatted(vsapi, mtDebug, "tone_mapping_function function_index: %d\n", function_index);
 
     const char *function_name = vsapi->propGetData(in, "tone_mapping_function_s", 0, &err);
     if (function_name && !err) {
@@ -634,7 +664,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
             return;
     };
 
-    vsapi->logMessage(mtDebug, "src_csp: %d, dst_csp: %d\n", src_csp, dst_csp);
+    logMessageFormatted(vsapi, mtDebug, "src_csp: %d, dst_csp: %d\n", src_csp, dst_csp);
 
     const float src_max = vsapi->propGetFloat(in, "src_max", 0, &err);
     const float src_min = vsapi->propGetFloat(in, "src_min", 0, &err);
@@ -644,7 +674,7 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
 
     dst_pl_csp->hdr.max_luma = vsapi->propGetFloat(in, "dst_max", 0, &err);
     dst_pl_csp->hdr.min_luma = vsapi->propGetFloat(in, "dst_min", 0, &err);
-    vsapi->logMessage(mtDebug, "dst_pl_csp->hdr.max_luma: %d, min_luma: %d\n", dst_pl_csp->hdr.max_luma, dst_pl_csp->hdr.min_luma);
+    logMessageFormatted(vsapi, mtDebug, "dst_pl_csp->hdr.max_luma: %d, min_luma: %d\n", dst_pl_csp->hdr.max_luma, dst_pl_csp->hdr.min_luma);
 
     int64_t dst_prim = vsapi->propGetInt(in, "dst_prim", 0, &err);
     if (!err)
