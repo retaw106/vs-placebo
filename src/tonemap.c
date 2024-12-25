@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 #include "VapourSynth.h"
 
@@ -47,7 +48,8 @@ typedef struct {
     bool use_dovi;
 } TMData;
 
-static void logMessageFormatted(int msgType, const char *format, ...) {
+static void logMessageFormatted(const VSAPI *vsapi, int msgType, const char *format, ...)
+{
     va_list args;
     va_start(args, format);
 
@@ -77,7 +79,7 @@ static void logMessageFormatted(int msgType, const char *format, ...) {
     va_end(args);
 }
 
-bool vspl_tonemap_do_planes(const VSAPI *vsapi, TMData *tm_data, struct pl_plane *planes,
+bool vspl_tonemap_do_planes(TMData *tm_data, struct pl_plane *planes,
                  const struct pl_color_repr src_repr, const struct pl_color_repr dst_repr)
 {
     struct priv *p = tm_data->vf;
@@ -367,7 +369,11 @@ static const VSFrameRef *VS_CC VSPlaceboTMGetFrame(int n, int activationReason, 
         struct pl_dovi_metadata *dovi_meta = NULL;
         uint8_t dovi_profile = 0;
 
-        logMessageFormatted(vsapi, mtDebug, "HAVE_DOVI: %d, use_dovi: %d\n", HAVE_DOVI, tm_data->use_dovi);
+#ifdef HAVE_DOVI
+        logMessageFormatted(vsapi, mtDebug, "HAVE_DOVI: %d, use_dovi: %d\n", 1, tm_data->use_dovi);
+#else
+        logMessageFormatted(vsapi, mtDebug, "HAVE_DOVI: %d, use_dovi: %d\n", 0, tm_data->use_dovi);
+#endif
 
 #ifdef HAVE_DOVI
         if (tm_data->use_dovi && vsapi->propNumElements(props, "DolbyVisionRPU")) {
