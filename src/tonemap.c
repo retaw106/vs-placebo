@@ -261,7 +261,7 @@ static const VSFrameRef *VS_CC VSPlaceboTMGetFrame(int n, int activationReason, 
                 dst_repr.levels = PL_COLOR_LEVELS_FULL;
             }
 
-            if (tm_data->dst_pl_csp->transfer == PL_COLOR_TRC_BT_1886) {
+            if (tm_data->dst_pl_csp->transfer == PL_COLOR_TRC_BT_1886 || tm_data->dst_pl_csp->transfer == PL_COLOR_TRC_SRGB) {
                 dst_repr.sys = PL_COLOR_SYSTEM_BT_709;
             } else if (tm_data->dst_pl_csp->transfer == PL_COLOR_TRC_PQ || tm_data->dst_pl_csp->transfer == PL_COLOR_TRC_HLG) {
                 dst_repr.sys = PL_COLOR_SYSTEM_BT_2020_NC;
@@ -639,7 +639,8 @@ void VS_CC VSPlaceboTMCreate(const VSMap *in, VSMap *out, void *userData, VSCore
     
     switch (dst_csp) {
         case CSP_SDR:
-            *dst_pl_csp = pl_color_space_bt709;
+            // *dst_pl_csp = pl_color_space_bt709;
+            *dst_pl_csp = pl_color_space_srgb;
             break;
         case CSP_HDR10:
             *dst_pl_csp = pl_color_space_hdr10;
